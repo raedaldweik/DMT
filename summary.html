@@ -331,7 +331,6 @@
 
     <!-- Re-Center Button -->
     <button class="recenter-button" id="recenterButton">Re-Center</button>
-
     
     <!-- CCTV Video Popup -->
     <div class="overlay" id="overlay"></div>
@@ -507,7 +506,7 @@
       selectedAlert = alertData[index];
       map.flyTo(flyToOptions);
       updateAlertDetails(selectedAlert);
-      // Hide or show the action box as needed
+      // Show the action box if needed (currently commented out)
       // document.getElementById('action-box').style.display = 'block';
 
       // "View Analytics" button
@@ -706,10 +705,13 @@
         updateLineGradient(time);
       });
 
+      // ------------------------------------------------------
+      // We only declare "size" once to use across all dots:
+      const size = 200;
+
       // ------------------------
       // Define the RED pulsing dot (original)
       // ------------------------
-      const size = 200;
       const pulsingDot = {
         width: size,
         height: size,
@@ -756,7 +758,7 @@
       map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
 
       // ------------------------
-      // Define the ORANGE pulsing dot (less bright)
+      // Define the ORANGE (now RED) pulsing dot
       // ------------------------
       const pulsingDotOrange = {
         width: size,
@@ -779,17 +781,16 @@
 
           context.clearRect(0, 0, this.width, this.height);
 
-          // Outer circle (orange glow, with reduced opacity)
-          // RGBA: (255,165,0) => #FFA500
+          // Outer circle (red glow, same as original)
           context.beginPath();
           context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2);
-          context.fillStyle = `rgba(255, 165, 0, ${0.5 * (1 - t)})`;
+          context.fillStyle = `rgba(255, 200, 200, ${1 - t})`;
           context.fill();
 
-          // Inner circle (solid orange, slightly reduced alpha)
+          // Inner circle (solid red, same as original)
           context.beginPath();
           context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
-          context.fillStyle = 'rgba(255, 165, 0, 0.85)';
+          context.fillStyle = 'rgba(255, 100, 100, 1)';
           context.strokeStyle = 'white';
           context.lineWidth = 2 + 4 * (1 - t);
           context.fill();
@@ -850,7 +851,6 @@
       };
       map.addImage('pulsing-dot-green', pulsingDotGreen, { pixelRatio: 2 });
 
-
       // -----------------------------------
       // RED Dot #1
       // -----------------------------------
@@ -890,7 +890,6 @@
 
       // On click for first dot
       map.on('click', 'layer-with-pulsing-dot-1', () => {
-        // Use handleAlertClick for alert 0
         handleAlertClick(0, pulsingDotCoordinates1, {
           center: pulsingDotCoordinates1,
           zoom: 16.00527175223802,
@@ -900,7 +899,6 @@
           curve: 1
         });
       });
-
 
       // -----------------------------------
       // RED Dot #2
@@ -941,7 +939,6 @@
 
       // On click for second dot
       map.on('click', 'layer-with-pulsing-dot-2', () => {
-        // Use handleAlertClick for alert 1
         handleAlertClick(1, pulsingDotCoordinates2, {
           center: pulsingDotCoordinates2,
           zoom: 16.293986640569322,
@@ -952,11 +949,10 @@
         });
       });
 
-
       // -----------------------------------
-      // ORANGE Dot #3 (Dhaharat Al Teeb)
+      // RED Dot #3 (Previously Orange)
       // -----------------------------------
-      const pulsingDotCoordinates3 = [54.71997584950117, 24.372334597605118]; // Dhaharat Al Teeb
+      const pulsingDotCoordinates3 = [54.71997584950117, 24.372334597605118];
       map.addSource('dot-point-3', {
         'type': 'geojson',
         'data': {
@@ -973,7 +969,7 @@
         'id': 'layer-with-pulsing-dot-3',
         'type': 'symbol',
         'source': 'dot-point-3',
-        'layout': { 'icon-image': 'pulsing-dot-orange' }, // <-- ORANGE dot
+        'layout': { 'icon-image': 'pulsing-dot-orange' },
         'minzoom': 10,
         'maxzoom': 16
       });
@@ -990,7 +986,6 @@
         popup3.remove();
       });
       // No click event here, so nothing happens on click.
-
 
       // -----------------------------------
       // GREEN Dot #4
@@ -1012,7 +1007,7 @@
         'id': 'layer-with-pulsing-dot-4',
         'type': 'symbol',
         'source': 'dot-point-4',
-        'layout': { 'icon-image': 'pulsing-dot-green' }, // <-- GREEN dot
+        'layout': { 'icon-image': 'pulsing-dot-green' },
         'minzoom': 10,
         'maxzoom': 16
       });
