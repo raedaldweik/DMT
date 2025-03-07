@@ -18,20 +18,35 @@
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
+
+      /* CHANGED:
+         We want the body to fill the browser so the flex layout can take effect,
+         and we may optionally use flex on the body if needed. */
+      height: 100vh; 
+      display: flex;            /* ADDED: If you want a vertical stacking, not strictly necessary. */
+      flex-direction: column;   /* ADDED: body can be vertical container if needed. */
+    }
+
+    /********************************************************************
+     * NEW FLEX LAYOUT FOR SIDEBAR + MAP
+     ********************************************************************/
+    /* ADDED: a parent container (.dashboard) that holds #sidebar & #map side-by-side */
+    .dashboard {
+      display: flex;  /* horizontal layout: sidebar on left, map on right */
+      flex: 1;        /* fill remaining vertical space in the body */
+      overflow: hidden;
     }
 
     /* Sidebar styling */
     #sidebar {
-      position: absolute;
-      width: 300px;
-      top: 0;
-      left: 0;
-      bottom: 0;
+      /* REMOVED: position: absolute; left:0; width:300px; bottom:0; etc. */
+      /* CHANGED: Use a fluid or partial width in a flex layout */
+      width: 25%;               /* was 300px absolute, now 25% of container */
+      max-width: 300px;         /* optional limit if you want it no bigger than 300px */
       background: linear-gradient(135deg, #323c43, #252c35);
       padding: 20px;
-      z-index: 1;
-      overflow-y: auto;         /* Enable vertical scroll if content is too long */
-      border-radius: 15px;      /* Curved edges */
+      overflow-y: auto;         /* so we can scroll if content is too long */
+      border-radius: 15px;      
       box-shadow: -2px 0 20px rgba(0, 0, 0, 0.4);
     }
 
@@ -50,7 +65,7 @@
     #sidebar h3 {
       font-size: 18px;
       cursor: pointer;
-      white-space: nowrap; /* Prevent wrapping */
+      white-space: nowrap;
       margin-bottom: 5px;
     }
 
@@ -105,7 +120,14 @@
       box-shadow: 0 0 5px rgba(255, 100, 100, 0.6);
     }
 
-    /* Action box styling */
+    /* CHANGED: #map is no longer absolute positioned. 
+       Instead, in the flex layout, #map will just fill leftover space. */
+    #map {
+      flex: 1;              /* fill the remaining horizontal space next to sidebar */
+      position: relative;   /* so we can absolutely-position overlays inside the map if needed */
+    }
+
+    /* Action box styling (still absolute, floating on the map container) */
     #action-box {
       display: none;
       position: absolute;
@@ -130,7 +152,7 @@
       background-color: #1e90ff;
       color: white;
       border: none;
-      border-radius: 4px; /* Curved edges */
+      border-radius: 4px;
       cursor: pointer;
       width: 100%;
       transition: background-color 0.3s ease;
@@ -166,16 +188,7 @@
       margin-top: 10px;
     }
 
-    /* The MAP container */
-    #map {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 300px; /* Leaves space for sidebar */
-      right: 0;
-    }
-
-    /* Re-Center button styling */
+    /* Re-Center button styling (absolute on top of the map) */
     .recenter-button {
       position: absolute;
       top: 20px;
@@ -299,8 +312,8 @@
 </head>
 
 <body>
-  <!-- Dashboard container -->
-  <div class="dashboard-container">
+  <!-- CHANGED: We wrap #sidebar and #map in a .dashboard flex container -->
+  <div class="dashboard"> <!-- ADDED -->
     <!-- Sidebar for the alerts -->
     <div id="sidebar">
       <h2>Flood Summary</h2>
@@ -313,43 +326,40 @@
       </div>
     </div>
 
-    <!-- Action box for buttons and slider -->
-    <div id="action-box">
-      <h3>Actions</h3>
-      <button class="action-button" id="viewAnalyticsButton">View Analytics</button>
-      <button class="action-button" onclick="callAgent()">CCTV</button>
+    <!-- The Map (flex:1 in .dashboard) -->
+    <div id="map">
+      <!-- Re-Center Button -->
+      <button class="recenter-button" id="recenterButton">Re-Center</button>
 
-      <div class="forecast-section">
-        <h3>Forecasting</h3>
-        <input id="slider" type="range" min="0" max="6" step="1" value="0">
-        <button class="forecast-button" id="playPause">Forecast</button>
+      <!-- Action box (absolute, floating on the map) -->
+      <div id="action-box">
+        <h3>Actions</h3>
+        <button class="action-button" id="viewAnalyticsButton">View Analytics</button>
+        <button class="action-button" onclick="callAgent()">CCTV</button>
+
+        <div class="forecast-section">
+          <h3>Forecasting</h3>
+          <input id="slider" type="range" min="0" max="6" step="1" value="0">
+          <button class="forecast-button" id="playPause">Forecast</button>
+        </div>
       </div>
     </div>
+  </div> <!-- END of .dashboard -->
 
-    <!-- The Map -->
-    <div id="map"></div>
+  <!-- Modal structure for View Analytics -->
+  <div id="analyticsModal">
+    <div class="modal-content"></div>
+  </div>
 
-    <!-- Re-Center Button -->
-    <button class="recenter-button" id="recenterButton">Re-Center</button>
-    
-    <!-- CCTV Video Popup -->
-    <div class="overlay" id="overlay"></div>
-    <div class="video-popup" id="video-popup">
-      <button class="close-button" onclick="closeVideoPopup()">Close</button>
-      <video id="video-element" autoplay loop muted>
-        <source id="video-source" src="" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-    </div>
-
-    <!-- Modal structure for View Analytics -->
-    <div id="analyticsModal">
-      <div class="modal-content">
-        <button class="close-button" onclick="closeAnalyticsModal()">Close</button>
-        <!-- The iframe will be dynamically added here -->
-      </div>
-    </div>
-  </div> <!-- End of .dashboard-container -->
+  <!-- CCTV Video Popup -->
+  <div class="overlay" id="overlay"></div>
+  <div class="video-popup" id="video-popup">
+    <button class="close-button" onclick="closeVideoPopup()">Close</button>
+    <video id="video-element" autoplay loop muted>
+      <source id="video-source" src="" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
 
   <!-- Your JavaScript for Mapbox and interactions -->
   <script>
@@ -382,7 +392,7 @@
     // Alert data
     const alertData = [
       {
-        title: "Critical Inundation Alert",
+        title: "Critical Alert",
         location: "Al Faya North, Abu Dhabi, ARE",
         time: "2024-02-01 3:55 AM",
         severity: "Critical",
@@ -392,7 +402,7 @@
         analyticsURL: "https://raedaldweik.github.io/business_bay/"
       },
       {
-        title: "Critical Inundation Alert",
+        title: "Critical Alert",
         location: "Al Haffar, Abu Dhabi, ARE",
         time: "2024-02-01 3:58 AM",
         severity: "Critical",
@@ -402,7 +412,7 @@
         analyticsURL: "https://raedaldweik.github.io/Jumeirah-Beach-Rd/"
       },
       {
-        title: "Critical Inundation Alert",
+        title: "Critical Alert",
         location: "Dhaharat Al Teeb, Abu Dhabi, ARE",
         time: "2024-02-01 3:49 AM",
         severity: "Critical",
